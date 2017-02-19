@@ -1,0 +1,10 @@
+# ignore the following directories
+node_modules
+.idea
+.tmp
+logs
+
+# ignore the files with the following extensions
+*.log
+*.zip
+*.swp

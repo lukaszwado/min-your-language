@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mind your language.</title>
+  <link rel="stylesheet" href="styles/editor.css">
+  <link rel="stylesheet" href="styles/grid.css">
+  <link rel="stylesheet" href="styles/layout.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+</head>
+<body>
+<header class="lw-layout__header">
+  <strong>Mind Your Language</strong> by Lukasz Wadowski
+  <div class="lw-layout__notification">
+    There is no way back
+  </div>
+</header>
+<article class="lw-layout__article">
+  <h1>It is all about the words...</h1>
+  When you are on your own nobody cares about your vocabulary.<br>
+  But when you are in public you should <strong>mind your language</strong>!<br>
+  Scroll down to see the difference.
+</article>
+<div class="lw-layout__main-container">
+  <div class="lw-layout__code-container">
+    <div class="lw-grid__row">
+      <code class="lw-ide flex-grid__cell" lw-app="lwEditorDefault">
+        <div class="lw-ide__row lw-ide__row-indent-{{row.indent}}" row-number="{{$$nonZeroIndex}}"
+             lw-repeat="row in lwEditorDefault">
+          <span class="lw-ide__text lw-ide__text--{{element.type}}" lw-repeat="element in row">{{element.text}}</span>
+        </div>
+      </code>
+      <code class="lw-ide flex-grid__cell" lw-app="lwEditor">
+        <div class="lw-ide__row lw-ide__row-indent-{{row.indent}}" row-number="{{$$nonZeroIndex}}"
+             lw-repeat="row in lwEditor">
+          <span class="lw-ide__text lw-ide__text--{{element.type}}" lw-repeat="element in row">{{element.text}}</span>
+        </div>
+      </code>
+    </div>
+  </div>
+  <footer class="lw-layout__footer">
+    <h2>Congratulations</h2>
+    Mission accomplished, your teammates' faces: <strong>:) => :D</strong>
+  </footer>
+</div>
+
+<script src="scripts/data.js"></script>
+<script src="scripts/animation_keyframes.js"></script>
+<script src="scripts/scope.js"></script>
+<script src="scripts/editor.js"></script>
+<script src="scripts/index.js"></script>
+</body>
+</html>

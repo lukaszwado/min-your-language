@@ -1,0 +1,95 @@
+.lw-ide {
+    font-family: 'Roboto Mono', monospace;
+    background: #333;
+    color: #fff;
+    margin: 1px;
+    border: 2px solid #000;
+    font-size: 1em;
+    line-height: 1.5em;
+    min-width: calc(50% - 2px);
+    max-height: calc(100vh - 152px);
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.lw-ide__row {
+    position: relative;
+    display: flex;
+    min-height: 1.5em;
+    white-space: nowrap;
+
+}
+
+.lw-ide__row-indent-1:before {
+    margin-right: 2em;
+}
+
+.lw-ide__row-indent-2:before {
+    margin-right: 4em;
+}
+
+.lw-ide__row-indent-3:before {
+    margin-right: 6em;
+}
+
+.lw-ide__row:before {
+    content: attr(row-number);
+    display: inline-block;
+    background: #000;
+    color: #aaa;
+    width: 30px;
+    min-width: 30px;
+    padding-right: 7px;
+    line-height: 1.5em;
+    text-align: right;
+}
+
+.lw-ide__text {
+    display: inline-block;
+    margin-left: 5px;
+    transition: all .5s ease-out;
+}
+
+.lw-ide__text--sticky {
+    margin-left: 0;
+}
+
+.lw-ide__text--keyword {
+    color: #f80;
+}
+
+.lw-ide__text--var-name {
+    color: #faa;
+}
+
+.lw-ide__text--string {
+    color: #ccf;
+}
+
+.lw-ide__text--object {
+    color: #6af;
+}
+
+.lw-ide__text--tr-comma {
+    margin-left: 8px;
+}
+
+.lw-ide__text--global {
+    color: #fb0;
+}
+
+.lw-ide__text--method-close,
+.lw-ide__text--method {
+    color: #6ef;
+}
+
+.lw-ide__text--method {
+    margin-left: 0;
+}
+
+@media (max-width: 900px) {
+    .lw-ide {
+        flex-wrap: wrap;
+        max-height: calc(100vh - 152px);
+    }
+}
