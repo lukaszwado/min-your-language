@@ -19,6 +19,11 @@
       this.keyframes = keyframes;
     }
 
+    /**
+     * Deep clone of an Object
+     * @param {Object} data
+     * @return {Object}
+     */
     deepClone( data ) {
       const cloned = JSON.parse( JSON.stringify( data ) )
         ;
@@ -28,12 +33,16 @@
       return cloned;
     }
 
+    /**
+     * Returns root element
+     * @return {Element}
+     */
     getRootElement() {
       return this.rootElement;
     }
 
     /**
-     * Recursively parse all loops
+     * Recursively parse all lw-loops
      */
     parseLoops() {
       const loop = this.findNextLoopToParse()
@@ -89,10 +98,19 @@
       this.parseLoops();
     }
 
+    /**
+     * Looks for element sibling
+     * @param {Node} root
+     * @return {NodeList}
+     */
     findSiblings( root ) {
       return root.parentNode.querySelectorAll( ':scope > [lw-repeat]' );
     }
 
+    /**
+     * Returns first not parsed loop
+     * @return {Element|null}
+     */
     findNextLoopToParse() {
       const loops = this.getRootElement().querySelectorAll( '[lw-repeat]' )
         ;
@@ -112,7 +130,8 @@
 
     /**
      * Parse element attributes and text
-     * @param element
+     * @param {Node} element
+     * @param {boolean} [animation=false]
      */
     parseElement( element, animation = false ) {
       this.parseAttributes( element );
@@ -121,7 +140,7 @@
 
     /**
      * Evaluate element attributes in context of data
-     * @param element
+     * @param {Node} element
      */
     parseAttributes( element ) {
       const attributesArray = Array.from( element.attributes || [] )
@@ -145,7 +164,8 @@
 
     /**
      * Evaluate element text in context of data
-     * @param element
+     * @param {Node} element
+     * @param {boolean} [animation]
      */
     parseText( element, animation = false ) {
       element.childNodes.forEach( node => {
@@ -173,6 +193,11 @@
       } );
     }
 
+    /**
+     *
+     * @param {text} textNode
+     * @param {string} newText
+     */
     animateText( textNode, newText ) {
       let index = 0
         , newTextLength = newText.length
@@ -200,8 +225,8 @@
 
     /**
      * Evaluates expression in context of scope data
-     * @param stringToEval
-     * @param scope
+     * @param {string} stringToEval=''
+     * @param {Scope} scope
      * @return {*}
      */
     evalInScope( stringToEval = '', scope ) {
@@ -227,8 +252,8 @@
 
     /**
      * Recursively traverse trough object based on keys
-     * @param keysArray
-     * @param object
+     * @param {Array} keysArray
+     * @param {Object} object
      * @return {*}
      */
     findInObject( keysArray, object ) {
@@ -257,7 +282,7 @@
 
     /**
      * Returns row by index
-     * @param rowNumber
+     * @param {number} rowNumber
      * @return {*}
      */
     findRow( rowNumber ) {
@@ -269,9 +294,9 @@
 
     /**
      * Updates row
-     * @param rowNumber
-     * @param elementNumber
-     * @param newElement
+     * @param {number} rowNumber
+     * @param {number} elementNumber
+     * @param {Node} newElement
      */
     updateRow( { rowNumber, elementNumber, newElement, offset } ) { // @todo: offset
       const rowScope = this.findRow( rowNumber )
@@ -285,10 +310,20 @@
       }
     }
 
+    /**
+     * Updates row text
+     * @param {Scope} targetScope={}
+     * @param {Node} newElement
+     */
     updateInRow( targetScope = {}, newElement ) {
       targetScope.element = Object.assign( {}, targetScope.element, newElement );
     }
 
+    /**
+     * Delete row text
+     * @param rowScope
+     * @param removeFrom
+     */
     deleteInRow( rowScope, removeFrom ) {
       const childScopes = rowScope.$$childScopes
         ;
@@ -301,16 +336,22 @@
       }
     }
 
+    /**
+     * Returns new generator which iterates through all frames
+     * @return {function*}
+     */
     animationGenerator() {
       return function*( context ) {
-        for ( const frame of context.keyframes ) {
-          yield context.updateRow( frame );
+        while ( context.keyframes.length ) {
+          yield context.updateRow( context.keyframes.shift() );
         }
-        return true;
       }( this );
     }
   }
 
+  /*
+  Add class to global scope via l.wado property
+   */
   const wasPublicObjectDeclared = 'l.wado' in window
     ;
 

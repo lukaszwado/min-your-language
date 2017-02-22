@@ -119,6 +119,9 @@
     }
   }
 
+  /*
+   Add class to global scope via l.wado property
+   */
   const wasPublicObjectDeclared = 'l.wado' in window
     ;
 

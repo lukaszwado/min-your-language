@@ -27,6 +27,10 @@
       return scopeProxy;
     }
 
+    /**
+     * Add event to scope "onchange"
+     * @param callback
+     */
     addEventListener( callback ) {
       const listenersInitialised = !!this.$$eventListeners.$$global
         ;
@@ -38,6 +42,9 @@
       this.$$eventListeners.$$global.push( callback );
     }
 
+    /**
+     * Fire all global events
+     */
     fireEvents() {
       const events = this.$$eventListeners.$$global
         , hasEvents = !!events
@@ -50,6 +57,10 @@
       }
     }
 
+    /**
+     * Wraps scope in "change detector"
+     * @return {*}
+     */
     addChangeDetector() {
       return new Proxy( this, {
         set( scope, property, value ){
@@ -75,23 +86,33 @@
      */
     setChangeFlag( changeSource ) {
       this.$$changed = true;
-      this.$$changeSource = changeSource || this;
+      // this.$$changeSource = changeSource || this;
       // if ( this.$$parentScope ) {
       //   this.$$parentScope.setChangeFlag( this );
       // }
     }
 
+    /**
+     * Remove $$changed flag from scope
+     */
     deleteChangeFlag() {
       this.$$changed = false;
-      this.$$changeSource = null;
+      // this.$$changeSource = null;
     }
 
+    /**
+     * Add children to scope
+     * @param {*} child
+     */
     addChildren( child ) {
       this.$$childScopes.push( child );
     }
 
   }
 
+  /*
+   Add class to global scope via l.wado property
+   */
   const wasPublicObjectDeclared = 'l.wado' in window
     ;
 
