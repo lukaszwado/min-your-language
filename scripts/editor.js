@@ -4,7 +4,7 @@
  */
 'use strict';
 
-(function ( window ) {
+(function ( document, window ) {
   const Scope = window[ 'l.wado' ].Scope
     ;
 
@@ -319,4 +319,4 @@
   }
 
   window[ 'l.wado' ].Editor = Editor;
-})( window );
+})( document, window );

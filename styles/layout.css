@@ -34,21 +34,33 @@ body {
 
 .lw-layout__header {
     position: fixed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     top: 0;
     left: 0;
     width: 100%;
-    background: #eee;
+    background: #fafafa;
     color: #999;
     padding: 0 15px;
-    line-height: 40px;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .14), 0 2px 1px -1px rgba(0, 0, 0, .12);
-    layout: flex;
+    box-sizing: border-box;
+}
+
+.lw-layout__gh-logo {
+    height: 30px;
+    margin: 7.5px 0;
+    opacity: .6;
+}
+
+.lw-layout__gh-logo:hover {
+    opacity: 1;
 }
 
 .lw-layout__footer {
     position: absolute;
     bottom: 0;
-    padding: 15px;
+    padding: 15px 15px 30px;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .14), 0 2px 1px -1px rgba(0, 0, 0, .12);
     background: #fe0;
     width: 100%;
@@ -57,15 +69,23 @@ body {
 }
 
 .lw-layout__notification {
+    position: absolute;
+    display: none;
+    top: 100%;
+    padding: 15px;
+    margin-left: -15px;
+    width: 100%;
     background: #040;
     color: #fff;
-    margin-left: -15px;
-    padding: 0 15px;
-    display: none;
 }
 
 .lw-layout__article {
-    margin-top: 30px;
+    margin-top: 50px;
     padding: 5px 15px 15px 15px;
-    background: rgba(255, 255, 255, .2)
+    background: rgba(255, 255, 255, .2);
+}
+
+.lw-layout__text--distinct,
+.lw-layout__article__header {
+    color: #06f;
 }
