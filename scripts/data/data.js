@@ -137,7 +137,7 @@ data.push( [ {
   type: 'var-name'
 }, {
   text: ']',
-  type: 'method-close'
+  type: 'method--close'
 }, {
   text: '>=',
   type: 'default'
@@ -166,10 +166,10 @@ data.push( [ {
   type: 'var-name'
 }, {
   text: ']',
-  type: 'method-close'
+  type: 'method--close'
 }, {
   text: ')',
-  type: 'method-close'
+  type: 'method--close'
 }, {
   text: ';',
   type: 'sticky'
@@ -203,10 +203,10 @@ data.push( [ {
   type: 'var-name'
 }, {
   text: ']',
-  type: 'method-close'
+  type: 'method--close'
 }, {
   text: ')',
-  type: 'method-close'
+  type: 'method--close'
 }, {
   text: ';',
   type: 'sticky'
@@ -243,14 +243,13 @@ data.push( [ {
   type: 'var-name'
 }, {
   text: ')',
-  type: 'method-close'
+  type: 'method--close'
 }, {
   text: ';',
   type: 'sticky'
 } ] );
 
 data.push( [ {} ] );
-
 
 data[ 1 ].indent = 1;
 data[ 2 ].indent = 1;
@@ -261,5 +260,3 @@ data[ 8 ].indent = 2;
 data[ 9 ].indent = 1;
 data[ 10 ].indent = 2;
 data[ 11 ].indent = 1;
-
-// @todo convert row to be object with iterator - use iterator symbol

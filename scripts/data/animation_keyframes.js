@@ -79,12 +79,7 @@ const animationKeyframes = [
   {
     rowNumber: 6,
     elementNumber: 1,
-    newElement: { text: 'assignNumbers(' }
-  },
-  {
-    rowNumber: 6,
-    elementNumber: 1,
-    newElement: { text: 'assignNumbers(' }
+    newElement: { text: 'assignNumber(' }
   },
   {
     rowNumber: 6,
@@ -132,7 +127,7 @@ const animationKeyframes = [
   {
     rowNumber: 8,
     elementNumber: 3,
-    newElement: { text: ')' }
+    newElement: { text: ')', type: 'method--close' }
   },
   {
     rowNumber: 8,
@@ -151,7 +146,7 @@ const animationKeyframes = [
   {
     rowNumber: 10,
     elementNumber: 3,
-    newElement: { text: ')' }
+    newElement: { text: ')', type: 'method--close' }
   },
   {
     rowNumber: 10,
@@ -175,12 +170,12 @@ const animationKeyframes = [
   {
     rowNumber: 13,
     elementNumber: 2,
-    newElement: { text: 'assignNumbers', type: 'default' }
+    newElement: { text: 'assignNumber', type: 'default' }
   },
   {
     rowNumber: 13,
     elementNumber: 3,
-    newElement: { text: ')', type: 'method' }
+    newElement: { text: ')', type: 'method--close' }
   },
   {
     rowNumber: 13,

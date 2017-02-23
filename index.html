@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
 </head>
 <body>
+<div class="lw-layout__background"></div>
 <header class="lw-layout__header">
   <div><strong>Mind Your Language</strong> by Lukasz Wadowski</div>
   <a href="https://github.com/lukaszwado/mind-your-language" target="_blank">
@@ -27,23 +28,30 @@
 <div class="lw-layout__main-container">
   <div class="lw-layout__code-container">
     <div class="lw-grid__row">
-      <code class="lw-ide lw-ide--default flex-grid__cell" lw-app="lwEditorDefault">
+      <div class="lw-ide lw-ide--default flex-grid__cell" lw-app="lwEditorDefault">
         <div class="lw-ide__row lw-ide__row-indent-{{row.indent}}" row-number="{{$$nonZeroIndex}}"
              lw-repeat="row in lwEditorDefault">
           <span class="lw-ide__text lw-ide__text--{{element.type}}" lw-repeat="element in row">{{element.text}}</span>
         </div>
-      </code>
-      <code class="lw-ide flex-grid__cell" lw-app="lwEditor">
+      </div>
+      <div class="lw-ide flex-grid__cell" lw-app="lwEditor">
         <div class="lw-ide__row lw-ide__row-indent-{{row.indent}}" row-number="{{$$nonZeroIndex}}"
              lw-repeat="row in lwEditor">
           <span class="lw-ide__text lw-ide__text--{{element.type}}" lw-repeat="element in row">{{element.text}}</span>
         </div>
-      </code>
+      </div>
     </div>
+  </div>
+  <div class="lw-layout__keep-scrolling">
+    Keep Scrolling...
   </div>
   <footer class="lw-layout__footer">
     <h2>Congratulations</h2>
-    Mission accomplished, your teammates' faces: <strong>:) => :D</strong>
+    Mission accomplished, your teammates look happy:
+    <strong class="lw-layout__teammate">=:)</strong>
+    <strong class="lw-layout__teammate">:D</strong>
+    <strong class="lw-layout__teammate">=:D</strong>
+    <strong class="lw-layout__teammate">>:)</strong>
   </footer>
 </div>
 <script src="scripts/ui_helper.js"></script>

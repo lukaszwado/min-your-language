@@ -6,16 +6,24 @@
 'use strict';
 
 (function ( window ) {
+  /**
+   * $$ prefixed used to distinguish scopes private properties (thanks Angular)
+   */
   class Scope {
-    constructor( dataName, data, parentScope, elementReference, index = null ) {
+    /**
+     * Creates new data scope
+     * @param {string} dataName
+     * @param {*} data
+     * @param {Scope|null} [parentScope]
+     * @param {number|null} [index=null]
+     * @return {*}
+     */
+    constructor( dataName, data, parentScope = null, index = null ) {
       this[ dataName ] = data; // data container
-      this.$$parentScope = parentScope; // reference to parent source
       this.$$changed = false; // need update
-      this.$$changeSource = void(0); // source of changes @todo: probably can be removed
       this.$$childScopes = []; // references to child scopes
-      this.$$elementReference = elementReference; // reference to DOM node
-      this.$$nonZeroIndex = index + 1;
       this.$$eventListeners = {};
+      this.$$nonZeroIndex = index + 1; // index of loop + 1
 
       const scopeProxy = this.addChangeDetector()
         ;
@@ -28,7 +36,7 @@
     }
 
     /**
-     * Add event to scope "onchange"
+     * Add listener to scopes "onchange" event
      * @param callback
      */
     addEventListener( callback ) {
@@ -43,7 +51,7 @@
     }
 
     /**
-     * Fire all global events
+     * Fires all global events
      */
     fireEvents() {
       const events = this.$$eventListeners.$$global
@@ -81,19 +89,14 @@
     }
 
     /**
-     * Recursively set changed flag for all parents up to top
-     * @param changeSource
+     * Sets changed flag for current scope
      */
-    setChangeFlag( changeSource ) {
+    setChangeFlag() {
       this.$$changed = true;
-      // this.$$changeSource = changeSource || this;
-      // if ( this.$$parentScope ) {
-      //   this.$$parentScope.setChangeFlag( this );
-      // }
     }
 
     /**
-     * Remove $$changed flag from scope
+     * Removes $$changed flag from scope
      */
     deleteChangeFlag() {
       this.$$changed = false;
@@ -101,7 +104,7 @@
     }
 
     /**
-     * Add children to scope
+     * Adds children to scope
      * @param {*} child
      */
     addChildren( child ) {
@@ -113,10 +116,10 @@
   /*
    Add class to global scope via l.wado property
    */
-  const wasPublicObjectDeclared = 'l.wado' in window
+  const globalObjectInitialised = 'l.wado' in window
     ;
 
-  if ( !wasPublicObjectDeclared ) {
+  if ( !globalObjectInitialised ) {
     window[ 'l.wado' ] = {};
   }
 

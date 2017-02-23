@@ -8,15 +8,25 @@
 (function ( document, window ) {
 
   class UiHelper {
+    /**
+     * Contains all UI related methods
+     * @param {Editor} editorReference
+     */
     constructor( editorReference ) {
-      this.editorVisible = false;
       this.mainContainer = document.querySelector( '.lw-layout__main-container' );
       this.codeContainer = this.mainContainer.querySelector( '.lw-layout__code-container' );
-      this.mainContainerHeight = this.getMainContainerHeight();
       this.notification = document.querySelector( '.lw-layout__notification' );
+      this.footer = document.querySelector( '.lw-layout__footer' );
+      this.background = document.querySelector( '.lw-layout__background' );
+      this.mainContainerHeight = this.getMainContainerHeight();
+      this.animationGenerator = editorReference.animationGenerator();
+      this.animationQueueChecker = editorReference.isAnimationQueueEmpty.bind( editorReference );
       this.prevScroll = null;
+      this.editorVisible = false;
       this.currentAnimationFrame = null;
-      this.animationGenerator = editorReference.animationGenerator()
+      this.lastFrame = false;
+      this.documentElement = document.documentElement;
+      this.body = document.body;
     }
 
     /**
@@ -50,12 +60,16 @@
      * @param windowScroll
      */
     showContent( windowScroll ) {
-      const showContent = !this.editorVisible && windowScroll > 50
+      const shouldBeVisible = windowScroll > 50
+        , showContent = !this.editorVisible && shouldBeVisible
         ;
 
       if ( showContent ) {
         this.codeContainer.classList.add( 'lw-layout__code-container--visible' );
         this.editorVisible = true;
+      } else if ( !shouldBeVisible ) {
+        this.codeContainer.classList.remove( 'lw-layout__code-container--visible' );
+        this.editorVisible = false;
       }
     }
 
@@ -65,41 +79,32 @@
      * @return {boolean}
      */
     goToNextFrame( currentStep ) {
-      const lastFrameReached = !!this.animationGenerator.next().done
+      const lastFrameReached = this.animationGenerator.next().done
         ;
-
       this.currentAnimationFrame = currentStep;
       return lastFrameReached;
     }
 
     /**
-     * Destroys event bound to window scroll
-     */
-    destroyScrollEvent() {
-      window.removeEventListener( 'scroll', this.scrollAnimationFunction );
-    }
-
-    /**
-     * Factory function return scroll listener function with context of the class
+     * Factory function returns scroll listener function in context of the class
+     * @param {number} [step=150]
      * @return {(function(this:UiHelper))|*}
      */
-    scrollAnimationFactory() {
-      this.scrollAnimationFunction = function () {
+    scrollAnimationFactory( step = 150 ) {
+      return () => {
         const windowScroll = window.scrollY
-          , currentStep = ~~(windowScroll / 150)
+          , currentStep = ~~(windowScroll / step)
           , updateNeeded = this.currentAnimationFrame < currentStep
           , scrollingBackwards = this.prevScroll > windowScroll
+          , animationQueueEmpty = this.animationQueueChecker()
           ;
 
         this.prevScroll = windowScroll;
 
         this.showContent( windowScroll );
 
-        let lastFrame = false
-          ;
-
         if ( updateNeeded ) {
-          lastFrame = this.goToNextFrame( currentStep );
+          this.lastFrame = this.goToNextFrame( currentStep );
         }
         if ( scrollingBackwards ) {
           this.currentAnimationFrame = currentStep;
@@ -108,24 +113,34 @@
           this.toggleNotification( '', false );
         }
 
-        if ( lastFrame ) {
-          this.destroyScrollEvent();
-        } else {
+        if ( !this.lastFrame || !animationQueueEmpty ) {
           this.extendContainerHeight( windowScroll );
+        } else {
+          this.footer.classList.add( 'lw-layout__footer--visible' );
         }
-      }.bind( this );
+      };
+    }
 
-      return this.scrollAnimationFunction;
+    backgroundMove() {
+      const mousePositionX = event.screenX
+        , mousePositionY = event.screenY
+        , documentWidth = this.documentElement.clientWidth
+        , documentHeight = this.documentElement.clientHeight
+        , backgroundOffsetX = ~~( ( mousePositionX - documentWidth / 2 ) / documentWidth * 50)
+        , backgroundOffsetY = ~~( ( mousePositionY - documentHeight / 2 ) / documentHeight * 50)
+        ;
+
+      this.background.style.transform = `translate(${backgroundOffsetX}px, ${backgroundOffsetY}px)`;
     }
   }
 
   /*
    Add class to global scope via l.wado property
    */
-  const wasPublicObjectDeclared = 'l.wado' in window
+  const globalObjectInitialised = 'l.wado' in window
     ;
 
-  if ( !wasPublicObjectDeclared ) {
+  if ( !globalObjectInitialised ) {
     window[ 'l.wado' ] = {};
   }
 

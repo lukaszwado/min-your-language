@@ -5,10 +5,11 @@
 'use strict';
 
 (function ( rows, keyframes ) {
-  const Editor = window[ 'l.wado' ].Editor
-    , editor = new Editor( 'lwEditor', rows, 50, keyframes )
+  const appGlobalObject = window[ 'l.wado' ]
+    , Editor = appGlobalObject.Editor
+    , editor = new Editor( 'lwEditor', rows, keyframes, 30 )
     , defaultEditor = new Editor( 'lwEditorDefault', rows )
-    , UiHelper = window[ 'l.wado' ].UiHelper
+    , UiHelper = appGlobalObject.UiHelper
     , uiHelper = new UiHelper( editor )
     ;
 
@@ -18,14 +19,23 @@
   window.addEventListener( 'beforeunload', () => {
     window.scrollTo( 0, 0 );
   } );
-
   /*
    Animate the editor on scroll
    */
-  window.addEventListener( 'scroll', uiHelper.scrollAnimationFactory() );
-
+  window.addEventListener( 'scroll', uiHelper.scrollAnimationFactory( 150 ) );
   /*
-   Don't do that at home used only to test code correctness
+   Move the background against cursor position
    */
-  // eval( editor.getRootElement().innerText ); @todo: write safe eval in a web worker?
+  let counter = 0
+    ;
+  window.addEventListener( 'mousemove', ( event ) => {
+    const throttle = counter !== 5
+      ;
+    if ( !throttle ) {
+      uiHelper.backgroundMove( event );
+      counter = 0;
+    } else {
+      counter++;
+    }
+  } );
 })( data, animationKeyframes );

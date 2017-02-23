@@ -9,18 +9,26 @@
     ;
 
   class Editor {
-    constructor( appName, initialData, animationDuration = 1500, keyframes ) {
+    /**
+     * Code editor
+     * @param {string} appName
+     * @param {*} initialData
+     * @param {Array} [keyframes]
+     * @param {number} [animationDuration=50]
+     */
+    constructor( appName, initialData, keyframes, animationDuration = 50 ) {
       this.appName = appName;
       this.rootElement = document.querySelector( `[lw-app=${appName}]` );
       this.rootElement.$$scope = new Scope( appName, this.deepClone( initialData ) );
       this.rootScope = this.getRootElement().$$scope;
       this.animationStep = animationDuration;
+      this.animationQueue = [];
       this.parseLoops();
       this.keyframes = keyframes;
     }
 
     /**
-     * Deep clone of an Object
+     * Creates deep clone of an Object
      * @param {Object} data
      * @return {Object}
      */
@@ -42,7 +50,7 @@
     }
 
     /**
-     * Recursively parse all lw-loops
+     * Recursively parses all lw-loops
      */
     parseLoops() {
       const loop = this.findNextLoopToParse()
@@ -70,7 +78,7 @@
         } else {
           targetLoop = siblingsArray[ index ]
         }
-        targetLoop.$$scope = new Scope( localDataKey, data, parentScope, targetLoop, index );
+        targetLoop.$$scope = new Scope( localDataKey, data, parentScope, index );
         parentScope.addChildren( targetLoop.$$scope );
         parentElement.appendChild( targetLoop );
 
@@ -80,7 +88,6 @@
         } );
       } );
 
-      // @todo: remove siblings if dataCollection.length < siblings.length
       const newSiblingArray = this.findSiblings( loop )
         ;
 
@@ -129,7 +136,7 @@
     }
 
     /**
-     * Parse element attributes and text
+     * Parses element attributes and text
      * @param {Node} element
      * @param {boolean} [animation=false]
      */
@@ -139,7 +146,7 @@
     }
 
     /**
-     * Evaluate element attributes in context of data
+     * Evaluates element attributes in context of data
      * @param {Node} element
      */
     parseAttributes( element ) {
@@ -151,19 +158,25 @@
       }
 
       attributesArray.forEach( attribute => {
-        const hasOriginalValue = !!attribute.originalValue
+        const hasOriginalValue = !!attribute.$$originalValue
           ;
 
         if ( !hasOriginalValue ) {
-          attribute.originalValue = attribute.nodeValue; // @todo: add custom prefix
+          attribute.$$originalValue = attribute.nodeValue;
         }
         attribute.nodeValueOld = attribute.nodeValue;
-        attribute.nodeValue = this.evalInScope( attribute.originalValue, element.$$scope ); // @todo: check if value changed
+        const newVal = this.evalInScope( attribute.$$originalValue, element.$$scope )
+          , valueChanged = newVal !== attribute.nodeValue
+          ;
+
+        if ( valueChanged ) {
+          attribute.nodeValue = newVal;
+        }
       } );
     }
 
     /**
-     * Evaluate element text in context of data
+     * Evaluates element text in context of data
      * @param {Node} element
      * @param {boolean} [animation]
      */
@@ -174,15 +187,20 @@
 
         if ( isText ) {
           const text = node.data
-            , hasOriginalValue = !!node.stringToEval
+            , hasOriginalValue = !!node.$$stringToEval
             ;
 
-          if ( !hasOriginalValue ) { // @todo: add custom prefix
-            node.stringToEval = text;
+          if ( !hasOriginalValue ) {
+            node.$$stringToEval = text;
           }
           node.oldData = node.data;
-          const newData = this.evalInScope( node.stringToEval, element.$$scope ) // @todo: check if value changed
+          const newData = this.evalInScope( node.$$stringToEval, element.$$scope )
+            , valueChanged = newData !== node.data
             ;
+
+          if ( !valueChanged ) {
+            return;
+          }
 
           if ( !animation ) {
             node.data = newData;
@@ -194,33 +212,65 @@
     }
 
     /**
-     *
+     * Animates text when updated, creates animation queue when animation in progress
      * @param {text} textNode
      * @param {string} newText
      */
     animateText( textNode, newText ) {
       let index = 0
-        , newTextLength = newText.length
-        , oldTextLength = textNode.data.length
-        , animationFrameTime = this.animationStep
+        ;
+      const animationFrameTime = this.animationStep
         , currentTextAsArray = textNode.data.split( '' )
+        , animationQueEmpty = this.isAnimationQueueEmpty()
         ;
 
-      clearInterval( textNode.$$animation );
+      this.animationQueue.push( () => {
+        return new Promise( promiseExecutor );
+      } );
 
-      textNode.$$animation = setInterval( () => {
-        const animationFinished = newTextLength === oldTextLength
+      if ( animationQueEmpty ) {
+        this.executeAnimationQueue();
+      }
+
+      function promiseExecutor( resolve ) {
+        const interval = setInterval( () => {
+          currentTextAsArray[ index ] = newText[ index ] || '';
+          requestAnimationFrame( () => {
+            const currentText = textNode.data = currentTextAsArray.join( '' )
+              , animationFinished = newText === currentText
+              ;
+
+            if ( animationFinished ) {
+              clearInterval( interval );
+              resolve( true );
+            }
+          } );
+          index++;
+        }, animationFrameTime );
+      }
+    }
+
+    /**
+     * Returns information whether pending animation present in queue
+     * @return {boolean}
+     */
+    isAnimationQueueEmpty() {
+      return !this.animationQueue.length;
+    }
+
+    /**
+     * Loops trough all elements in animation queue and executes animations in order
+     */
+    executeAnimationQueue() {
+      if ( !this.isAnimationQueueEmpty() ) {
+        const animationPromise = this.animationQueue[ 0 ]
           ;
 
-        if ( animationFinished ) {
-          clearInterval( textNode.$$animation );
-        }
-
-        currentTextAsArray[ index ] = newText[ index ] || '';
-
-        textNode.data = currentTextAsArray.join( '' ); // @todo: request animation frame
-        index++;
-      }, animationFrameTime );
+        animationPromise().then( () => {
+          this.animationQueue.shift();
+          this.executeAnimationQueue();
+        } );
+      }
     }
 
     /**
@@ -251,7 +301,7 @@
     }
 
     /**
-     * Recursively traverse trough object based on keys
+     * Recursively traverses trough object based on keys
      * @param {Array} keysArray
      * @param {Object} object
      * @return {*}
@@ -296,13 +346,13 @@
      * Updates row
      * @param {number} rowNumber
      * @param {number} elementNumber
-     * @param {Node} newElement
+     * @param {{[text],[type]}} newElement
      */
-    updateRow( { rowNumber, elementNumber, newElement, offset } ) { // @todo: offset
+    updateRow( { rowNumber, elementNumber, newElement } ) {
       const rowScope = this.findRow( rowNumber )
         , targetScope = rowScope.$$childScopes[ elementNumber ]
         ;
-      // @todo: handle situation when element added in row in position which is empty/new => targetScope===undefined
+
       if ( newElement ) {
         this.updateInRow( targetScope, newElement );
       } else {
@@ -312,15 +362,15 @@
 
     /**
      * Updates row text
-     * @param {Scope} targetScope={}
-     * @param {Node} newElement
+     * @param {{element}} targetScope={}
+     * @param {{[text],[type]}} newElement
      */
-    updateInRow( targetScope = {}, newElement ) {
+    updateInRow( targetScope, newElement ) {
       targetScope.element = Object.assign( {}, targetScope.element, newElement );
     }
 
     /**
-     * Delete row text
+     * Deletes row text
      * @param rowScope
      * @param removeFrom
      */
@@ -338,24 +388,22 @@
 
     /**
      * Returns new generator which iterates through all frames
-     * @return {function*}
+     * @return {*}
      */
-    animationGenerator() {
-      return function*( context ) {
-        while ( context.keyframes.length ) {
-          yield context.updateRow( context.keyframes.shift() );
-        }
-      }( this );
+    * animationGenerator() {
+      while ( this.keyframes.length ) {
+        yield this.updateRow( this.keyframes.shift() );
+      }
     }
   }
 
   /*
-  Add class to global scope via l.wado property
+   Add class to global scope via l.wado property
    */
-  const wasPublicObjectDeclared = 'l.wado' in window
+  const globalObjectInitialised = 'l.wado' in window
     ;
 
-  if ( !wasPublicObjectDeclared ) {
+  if ( !globalObjectInitialised ) {
     window[ 'l.wado' ] = {};
   }
 
